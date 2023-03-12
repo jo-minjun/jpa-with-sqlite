@@ -10,6 +10,7 @@ import org.sqlite.SQLiteDataSource;
 //@Configuration
 public class SqliteDataSourceConfig {
 
+  // TODO: bean 구현으로 변경
   //  @Bean("sqliteDataSource")
 //  public DataSource sqliteDataSource() throws IOException {
   public static DataSource sqliteDataSource() {
