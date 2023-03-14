@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Component
 public class TestSqliteEntitySubRepository implements TestSqliteRepository<TestSqliteEntitySub, Long> {
 
   private final JdbcTemplate jdbcTemplate;
