@@ -13,6 +13,7 @@ import my.jpawithsqlite.infra.TestSqliteEntityRepository;
 import my.jpawithsqlite.infra.TestSqliteEntitySubRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +21,17 @@ import org.springframework.stereotype.Service;
 public class TestService {
 
   private final TestJpaRepository testJpaRepository;
-  private final TestSqliteRepository<TestSqliteEntity, Long> testSqliteEntityRepository = new TestSqliteEntityRepository(new JdbcTemplate(SqliteDataSourceConfig.sqliteDataSource()));
-  private final TestSqliteRepository<TestSqliteEntitySub, Long> testSqliteEntitySubRepository = new TestSqliteEntitySubRepository(new JdbcTemplate(SqliteDataSourceConfig.sqliteDataSource()));
+  private final static TestSqliteRepository<TestSqliteEntity, Long> testSqliteEntityRepository;
+  private final static TestSqliteRepository<TestSqliteEntitySub, Long> testSqliteEntitySubRepository;
 
-  // @Transactional
-  // mySql로 테스트 결과 정상적으로 동작하나, Sqlite에서는 file is locked 익셉션이 발생한다.
-  // Sqlite는 파일 전체를 lock 잡는다고 하는데, 그것과 관련이 있는 것일까?
-  // 위 문제를 해결하기 위해서, 각 레포지터리 구현체에 @Transactional을 선언했다.
+  static {
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(SqliteDataSourceConfig.sqliteDataSource());
+    testSqliteEntityRepository = new TestSqliteEntityRepository(jdbcTemplate);
+    testSqliteEntitySubRepository = new TestSqliteEntitySubRepository(jdbcTemplate);
+  }
+
+
+   @Transactional
   public void testSqlite() {
     log.info("===============================");
     testSqliteEntityRepository.createTable();
