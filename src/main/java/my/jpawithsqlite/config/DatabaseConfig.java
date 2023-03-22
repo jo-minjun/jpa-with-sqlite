@@ -1,12 +1,21 @@
 package my.jpawithsqlite.config;
 
-import javax.sql.DataSource;
-import javax.xml.crypto.Data;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+import my.jpawithsqlite.infra.TestSqliteEntityRepository;
+import my.jpawithsqlite.infra.TestSqliteEntitySubRepository;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.sqlite.SQLiteDataSource;
 
 @Configuration
 @EnableJpaRepositories(
@@ -15,4 +24,41 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 )
 public class DatabaseConfig {
 
+  @Bean
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public TestSqliteEntityRepository testSqliteEntityRepository() {
+    return new TestSqliteEntityRepository(sqliteJdbcTemplate());
+  }
+
+  @Bean
+  @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+  public TestSqliteEntitySubRepository testSqliteEntitySubRepository() {
+    return new TestSqliteEntitySubRepository(sqliteJdbcTemplate());
+  }
+
+  public JdbcTemplate sqliteJdbcTemplate() {
+    final String dbPath = System.getProperty("user.dir") + "/build/sqlite/" + UUID.randomUUID() + ".db";
+
+    final Path path = Paths.get(dbPath);
+    try {
+      if (!Files.exists(path.getParent())) {
+        Files.createDirectories(path.getParent());
+      }
+      if (!Files.exists(path)) {
+        Files.createFile(path);
+      }
+    } catch (IOException ignored) {
+    }
+
+    final SQLiteDataSource dataSource = new SQLiteDataSource();
+    dataSource.setUrl("jdbc:sqlite:" + dbPath);
+    dataSource.setDatabaseName("tmp");
+    dataSource.setJournalMode("OFF");
+    dataSource.setSynchronous("OFF");
+    dataSource.setLockingMode("EXCLUSIVE");
+    dataSource.setTempStore("MEMORY");
+    dataSource.setEncoding("UTF-8");
+
+    return new JdbcTemplate(dataSource);
+  }
 }

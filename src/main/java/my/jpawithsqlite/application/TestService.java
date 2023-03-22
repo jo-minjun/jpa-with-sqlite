@@ -14,6 +14,7 @@ import my.jpawithsqlite.domain.TestSqliteEntity;
 import my.jpawithsqlite.domain.TestSqliteEntitySub;
 import my.jpawithsqlite.infra.TestSqliteEntityRepository;
 import my.jpawithsqlite.infra.TestSqliteEntitySubRepository;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +27,13 @@ public class TestService {
 
   private final TestJpaRepository testJpaRepository;
 
+  private final ObjectProvider<TestSqliteRepository<TestSqliteEntity, Long>> provider1;
+  private final ObjectProvider<TestSqliteRepository<TestSqliteEntitySub, Long>> provider2;
+
   @Transactional
   public void testSqlite() {
-    final JdbcTemplate jdbcTemplate = createSqliteJdbcTemplate(UUID.randomUUID());
-    TestSqliteRepository<TestSqliteEntity, Long> testSqliteEntityRepository = new TestSqliteEntityRepository(jdbcTemplate);
-    TestSqliteRepository<TestSqliteEntitySub, Long> testSqliteEntitySubRepository = new TestSqliteEntitySubRepository(jdbcTemplate);
+    TestSqliteRepository<TestSqliteEntity, Long> testSqliteEntityRepository = provider1.getObject();
+    TestSqliteRepository<TestSqliteEntitySub, Long> testSqliteEntitySubRepository = provider2.getObject();
 
     log.info("===============================");
     testSqliteEntityRepository.createTable();
@@ -51,31 +54,5 @@ public class TestService {
                                                    UUID.randomUUID().toString(),
                                                    (int) (Math.random() * 10) + 10);
     return testJpaRepository.save(entity).getId();
-  }
-
-  private JdbcTemplate createSqliteJdbcTemplate(UUID randomUUID) {
-    final String dbPath = System.getProperty("user.dir") + "/build/sqlite/" + UUID.randomUUID() + ".db";
-
-    final Path path = Paths.get(dbPath);
-    try {
-      if (!Files.exists(path.getParent())) {
-        Files.createDirectories(path.getParent());
-      }
-      if (!Files.exists(path)) {
-        Files.createFile(path);
-      }
-    } catch (IOException ignored) {
-    }
-
-    final SQLiteDataSource dataSource = new SQLiteDataSource();
-    dataSource.setUrl("jdbc:sqlite:" + dbPath);
-    dataSource.setDatabaseName("tmp");
-    dataSource.setJournalMode("OFF");
-    dataSource.setSynchronous("OFF");
-    dataSource.setLockingMode("EXCLUSIVE");
-    dataSource.setTempStore("MEMORY");
-    dataSource.setEncoding("UTF-8");
-
-    return new JdbcTemplate(dataSource);
   }
 }

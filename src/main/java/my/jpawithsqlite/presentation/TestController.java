@@ -26,7 +26,6 @@ public class TestController {
   @PostMapping("/api/test/sqlite")
   public ResponseEntity<Void> test2() {
     CompletableFuture.runAsync(testService::testSqlite, executor);
-
     return ResponseEntity.accepted().build();
   }
 }
