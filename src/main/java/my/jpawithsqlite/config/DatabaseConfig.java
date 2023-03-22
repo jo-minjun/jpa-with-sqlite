@@ -26,18 +26,18 @@ public class DatabaseConfig {
 
   @Bean
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  public TestSqliteEntityRepository testSqliteEntityRepository() {
-    return new TestSqliteEntityRepository(sqliteJdbcTemplate());
+  public TestSqliteEntityRepository testSqliteEntityRepository(String name) {
+    return new TestSqliteEntityRepository(sqliteJdbcTemplate(name));
   }
 
   @Bean
   @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-  public TestSqliteEntitySubRepository testSqliteEntitySubRepository() {
-    return new TestSqliteEntitySubRepository(sqliteJdbcTemplate());
+  public TestSqliteEntitySubRepository testSqliteEntitySubRepository(String name) {
+    return new TestSqliteEntitySubRepository(sqliteJdbcTemplate(name));
   }
 
-  public JdbcTemplate sqliteJdbcTemplate() {
-    final String dbPath = System.getProperty("user.dir") + "/build/sqlite/" + UUID.randomUUID() + ".db";
+  public JdbcTemplate sqliteJdbcTemplate(String name) {
+    final String dbPath = System.getProperty("user.dir") + "/build/sqlite/" + name + ".db";
 
     final Path path = Paths.get(dbPath);
     try {

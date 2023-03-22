@@ -32,8 +32,8 @@ public class TestService {
 
   @Transactional
   public void testSqlite() {
-    TestSqliteRepository<TestSqliteEntity, Long> testSqliteEntityRepository = provider1.getObject();
-    TestSqliteRepository<TestSqliteEntitySub, Long> testSqliteEntitySubRepository = provider2.getObject();
+    TestSqliteRepository<TestSqliteEntity, Long> testSqliteEntityRepository = provider1.getObject("1");
+    TestSqliteRepository<TestSqliteEntitySub, Long> testSqliteEntitySubRepository = provider2.getObject("2");
 
     log.info("===============================");
     testSqliteEntityRepository.createTable();
