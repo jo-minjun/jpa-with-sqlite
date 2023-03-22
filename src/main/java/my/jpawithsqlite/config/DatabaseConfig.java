@@ -15,8 +15,4 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 )
 public class DatabaseConfig {
 
-//  @Bean
-//  public DataSource dataSource() {
-//
-//  }
 }
